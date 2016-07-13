@@ -52,7 +52,8 @@ class ExcelConverter(object):
                 sh = wb.sheet_by_name(sheet_name)
 
                 if sheet_name == 'Kyegegwa':#Kyegegwa has completely different data
-                    break
+                    print("Moving on, Kyegegwa has different data")
+                    continue
 
                 if first_sheet:
                     range_start = 0
@@ -112,7 +113,8 @@ class ExcelConverter(object):
                 sh = wb.sheet_by_name(sheet_name)
 
                 if sheet_name == 'Kyegegwa':#Kyegegwa has completely different data
-                    break
+                    print("Moving on, Kyegegwa has different data")
+                    continue
 
                 csv_file = open(target, 'w')
                 wr = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
