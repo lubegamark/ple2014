@@ -1,8 +1,3 @@
-"""
-Conversion of multiple excel sheets to csv files
-Adapted from http://strife.pl/2014/12/converting-large-xls-xlsx-files-to-csv-using-python/
-"""
-
 import csv
 import logging
 import os
@@ -10,6 +5,7 @@ import re
 import time
 import traceback
 
+import pandas as pd
 import xlrd
 
 import settings
@@ -18,6 +14,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 
 
 class ExcelConverter(object):
+    """
+    Conversion of multiple excel sheets to csv files
+    Adapted from http://strife.pl/2014/12/converting-large-xls-xlsx-files-to-csv-using-python/
+    """
+
     def __init__(self):
         pass
 
@@ -41,7 +42,7 @@ class ExcelConverter(object):
             wb = xlrd.open_workbook(xls_file)
 
         base = os.path.basename(xls_file)
-        target = target_folder+os.path.splitext(base)[0]+'.csv'
+        target = target_folder + os.path.splitext(base)[0] + '.csv'
         csv_file = open(target, 'w+')
         wr = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
         first_sheet = True
@@ -51,7 +52,7 @@ class ExcelConverter(object):
                 start_time = time.time()
                 sh = wb.sheet_by_name(sheet_name)
 
-                if sheet_name == 'Kyegegwa':#Kyegegwa has completely different data
+                if sheet_name == 'Kyegegwa':  # Kyegegwa has completely different data
                     print("Moving on, Kyegegwa has different data")
                     continue
 
@@ -94,7 +95,7 @@ class ExcelConverter(object):
         print("Overall Finished in %s seconds", time.time() - overall_start_time)
 
     @staticmethod
-    def excel_to_csv_multiple(xls_file=settings.MAIN_FILE, target_folder=settings.PROCESSED_FOLDER, wb=None):
+    def excel_to_csv_multiple(xls_file, target_folder, wb=None):
         """
         Convert an excel file(.xls/.xslx) to CSV writing each sheet to a separate file
 
@@ -109,10 +110,10 @@ class ExcelConverter(object):
             try:
                 print("Start converting: %s" % sheet_name)
                 start_time = time.time()
-                target = target_folder+sheet_name.upper()+'.csv'
+                target = target_folder + sheet_name.upper() + '.csv'
                 sh = wb.sheet_by_name(sheet_name)
 
-                if sheet_name == 'Kyegegwa':#Kyegegwa has completely different data
+                if sheet_name == 'Kyegegwa':  # Kyegegwa has completely different data
                     print("Moving on, Kyegegwa has different data")
                     continue
 
@@ -152,3 +153,103 @@ class ExcelConverter(object):
                 logging.error(str(e) + " " + traceback.format_exc())
 
         print("Overall Finished in %s seconds", time.time() - overall_start_time)
+
+
+class PLEInfo(object):
+    @classmethod
+    def get_rows_columns(cls, file=settings.MAIN_FILE):
+        """
+        Method prints how many columns and rows each sheet has
+        :param file: File which has the data
+        :return None:
+        """
+        cls.get_columns(file)
+        cls.get_rows(file)
+        # work_book = xlrd.open_workbook(file)
+        # sheet_names = work_book.sheet_names()
+        # print("District | Rows | Columns ")
+        #
+        # for sheet_name in sheet_names:
+        #     sheet = work_book.sheet_by_name(sheet_name)
+        #     print("{0} | {1} | {2} ".format(sheet.name, sheet.ncols, sheet.nrows,))
+
+    @staticmethod
+    def get_columns(file):
+        """
+        Method prints how many columns each sheet has
+        :param file: File which has the data
+        :return None:
+        """
+        work_book = xlrd.open_workbook(file)
+        sheet_names = work_book.sheet_names()
+        print("District | Columns")
+
+        for sheet_name in sheet_names:
+            sheet = work_book.sheet_by_name(sheet_name)
+            print("{0} | {1}".format(sheet.name, sheet.ncols, ))
+
+    @staticmethod
+    def get_rows(file):
+        """
+        Method prints how many rows each sheet has
+        :param file: File which has the data
+        :return None:
+        """
+        work_book = xlrd.open_workbook(file)
+        sheet_names = work_book.sheet_names()
+        print("District | Rows")
+
+        for sheet_name in sheet_names:
+            sheet = work_book.sheet_by_name(sheet_name)
+            print("{0} | {1}".format(sheet.name, sheet.nrows, ))
+
+
+def find_csv_shape(folder):
+    d = {}
+    for path, folders, files in os.walk(folder):
+        for file in files:
+            f = os.path.join(path, file)
+            csv = pd.read_csv(f)
+            if len(csv.columns) in d:
+                d[len(csv.columns)] += 1
+            else:
+                d[len(csv.columns)] = 1
+    print(d)
+
+
+def remove_unnamed(folder, right_size):
+    for path, folders, files in os.walk(folder):
+        for file in files:
+            f = os.path.join(path, file)
+            old_csv = pd.read_csv(f)
+            if len(old_csv.columns) != right_size:
+                new_csv = old_csv[old_csv.columns[~old_csv.columns.str.contains('Unnamed:')]]
+                new_csv.to_csv(f, quoting=csv.QUOTE_ALL, index=False)
+
+
+def get_required_columns(folder,
+                         columns=(
+                                 'DISTRICT', 'SCHOOL', 'CANDIDATE NUMBER', 'M/F', 'ENG', 'SCI', 'SST', 'MAT', 'AGG',
+                                 'DIV')):
+    for dirpath, dirs, filesnames in os.walk(folder):
+        for filename in filesnames:
+            file = os.path.join(dirpath, filename)
+            filter_columns(file, columns)
+
+
+def filter_columns(csv_file, columns):
+    df = pd.read_csv(csv_file)
+    new_csv = df.dropna(axis=1, how='all')
+    new_csv.to_csv(csv_file, quoting=df.QUOTE_ALL, index=False)
+
+
+def correct_entebbe(file):
+    """
+    Entebbe has some inconsistent headings.
+    These are corrected her
+    :param file:
+    :return:
+    """
+    df = pd.read_csv(file)
+    df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT'}, inplace=True)
+    df.to_csv(file, quoting=csv.QUOTE_ALL, index=False)
