@@ -244,16 +244,24 @@ def filter_columns(csv_file, columns):
     new_csv.to_csv(csv_file, quoting=df.QUOTE_ALL, index=False)
 
 
-def correct_entebbe(file):
+def correct_headers(location):
     """
-    Entebbe has some inconsistent headings.
+    Some files have inconsistent headings.
     These are corrected her
-    :param file:
-    :return:
     """
-    df = pd.read_csv(file)
-    df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT'}, inplace=True)
-    df.to_csv(file, quoting=csv.QUOTE_ALL, index=False)
+    if os.path.isfile(location):
+        df = pd.read_csv(location)
+        df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT', 'CNDIDATE NUMBER': 'CANDIDATE NUMBER'},
+                  inplace=True)
+        df.to_csv(location, quoting=csv.QUOTE_ALL, index=False)
+    elif os.path.isdir(location):
+        for path, folders, files in os.walk(location):
+            for f in files:
+                file = os.path.join(location, f)
+                df = pd.read_csv(file)
+                df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT', 'CNDIDATE NUMBER': 'CANDIDATE NUMBER'},
+                          inplace=True)
+                df.to_csv(file, quoting=csv.QUOTE_ALL, index=False)
 
 
 def download_file(url):
