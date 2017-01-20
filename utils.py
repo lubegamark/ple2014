@@ -6,6 +6,7 @@ import time
 import traceback
 
 import pandas as pd
+import requests
 import xlrd
 
 import settings
@@ -253,3 +254,19 @@ def correct_entebbe(file):
     df = pd.read_csv(file)
     df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT'}, inplace=True)
     df.to_csv(file, quoting=csv.QUOTE_ALL, index=False)
+
+
+def download_file(url):
+    """
+    Got from http://stackoverflow.com/a/16696317/5117592
+    """
+    local_filename = url.split('/')[-1]
+    file = os.path.join('data/original', local_filename)
+    # NOTE the stream=True parameter
+    r = requests.get(url, stream=True)
+    with open(file, 'wb') as f:
+        for chunk in r.iter_content(chunk_size=1024):
+            if chunk: # filter out keep-alive new chunks
+                f.write(chunk)
+                #f.flush() commented by recommendation from J.F.Sebastian
+    return file
