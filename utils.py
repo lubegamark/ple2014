@@ -266,7 +266,15 @@ def download_file(url):
     r = requests.get(url, stream=True)
     with open(file, 'wb') as f:
         for chunk in r.iter_content(chunk_size=1024):
-            if chunk: # filter out keep-alive new chunks
+            if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
-                #f.flush() commented by recommendation from J.F.Sebastian
+                # f.flush() commented by recommendation from J.F.Sebastian
     return file
+
+
+def download_ple():
+    if not os.path.exists(settings.MAIN_FILE):
+        download_file(
+            'http://ugandajournalistsresourcecentre.com/wp-content/uploads/2015/05/PLE-Results-2014.ALL-CANDIDATES.xlsx'
+        )
+    return
