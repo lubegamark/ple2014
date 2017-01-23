@@ -253,6 +253,7 @@ def correct_headers(location):
         df = pd.read_csv(location)
         df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT', 'CNDIDATE NUMBER': 'CANDIDATE NUMBER'},
                   inplace=True)
+        df.columns = df.columns.str.strip()
         df.to_csv(location, quoting=csv.QUOTE_ALL, index=False)
     elif os.path.isdir(location):
         for path, folders, files in os.walk(location):
@@ -261,6 +262,29 @@ def correct_headers(location):
                 df = pd.read_csv(file)
                 df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT', 'CNDIDATE NUMBER': 'CANDIDATE NUMBER'},
                           inplace=True)
+                df.columns = df.columns.str.strip()
+                df.to_csv(file, quoting=csv.QUOTE_ALL, index=False)
+
+
+def numerize(location):
+    """
+    Convert Numeric fields to numeric data types
+    """
+    if os.path.isfile(location):
+        df = pd.read_csv(location)
+        df['DIV'].replace('U', '0', inplace=True)
+        df[['MAT', 'SCI', 'SST', 'ENG', 'AGG', 'DIV']] = df[
+            ['MAT', 'SCI', 'SST', 'ENG', 'AGG', 'DIV']].apply(pd.to_numeric, errors='coerce')
+        df.to_csv(location, quoting=csv.QUOTE_ALL, index=False)
+    elif os.path.isdir(location):
+        for path, folders, files in os.walk(location):
+            for f in files:
+                print(f)
+                file = os.path.join(location, f)
+                df = pd.read_csv(file)
+                df['DIV'].replace("U", "0", inplace=True)
+                df[['MAT', 'SCI', 'SST', 'ENG', 'AGG', 'DIV']] = df[
+                    ['MAT', 'SCI', 'SST', 'ENG', 'AGG', 'DIV']].apply(pd.to_numeric, errors='coerce')
                 df.to_csv(file, quoting=csv.QUOTE_ALL, index=False)
 
 
