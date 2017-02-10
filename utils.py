@@ -306,7 +306,7 @@ def correct_headers(location):
                 df.to_csv(file, quoting=csv.QUOTE_ALL, index=False)
 
 
-def numerize(location):
+def convert_numeric_values(location):
     """
     Convert Numeric fields to numeric data types
     """
