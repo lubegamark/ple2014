@@ -153,7 +153,7 @@ class ExcelConverter(object):
             except Exception as e:
                 logging.error(str(e) + " " + traceback.format_exc())
 
-        print("Overall Finished in {} seconds".format(time.time() - overall_start_time,))
+        print("Overall Finished in {} seconds".format(time.time() - overall_start_time, ))
 
 
 class PLEInfo(object):
@@ -240,13 +240,23 @@ def get_required_columns(folder,
     for dirpath, dirs, filesnames in os.walk(folder):
         for filename in filesnames:
             file = os.path.join(dirpath, filename)
-            filter_columns(file, columns)
+            remove_empty_records(file, columns)
 
 
-def filter_columns(csv_file, columns):
-    df = pd.read_csv(csv_file)
-    new_csv = df.dropna(axis=1, how='all')
-    new_csv.to_csv(csv_file, quoting=df.QUOTE_ALL, index=False)
+def remove_empty_records(location):
+    if os.path.isfile(location):
+        df = pd.read_csv(location)
+        df.replace(r'\s+', df.nan, regex=True, inplace=True)  # Empty Strings are first turned to NaN
+        new_csv = df.dropna(how='all', inplace=True)
+        new_csv.to_csv(location, quoting=csv.QUOTE_ALL, index=False)
+    elif os.path.isdir(location):
+        for path, folders, files in os.walk(location):
+            for f in files:
+                file = os.path.join(location, f)
+                df = pd.read_csv(file)
+                df.replace(r'\s+', df.nan, regex=True, inplace=True)  # Empty Strings are first turned to NaN
+                new_csv = df.dropna(how='all', inplace=True)
+                new_csv.to_csv(f, quoting=csv.QUOTE_ALL, index=False)
 
 
 def correct_headers(location):
