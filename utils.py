@@ -284,7 +284,6 @@ def numerize(location):
     elif os.path.isdir(location):
         for path, folders, files in os.walk(location):
             for f in files:
-                print(f)
                 file = os.path.join(location, f)
                 df = pd.read_csv(file)
                 df['DIV'].replace("U", "0", inplace=True)
