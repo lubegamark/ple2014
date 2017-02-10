@@ -352,3 +352,16 @@ def download_ple():
             'http://ugandajournalistsresourcecentre.com/wp-content/uploads/2015/05/PLE-Results-2014.ALL-CANDIDATES.xlsx'
         )
     return
+
+
+def merge_districts(location):
+    all_districts = []
+    for path, folders, files in os.walk(location):
+        for f in files:
+            file = os.path.join(location, f)
+            df = pd.read_csv(file)
+            name = f.replace(" ", "_").lower().replace(".csv", "")
+            all_districts.append(df)
+    all_df = pd.concat(all_districts)
+    all_df_file = os.path.join(location, 'ALL.csv')
+    all_df.to_csv(all_df_file, quoting=csv.QUOTE_ALL, index=False)
