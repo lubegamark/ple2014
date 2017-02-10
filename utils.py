@@ -215,7 +215,13 @@ def find_csv_shape(folder):
                 d[len(csv.columns)] += 1
             else:
                 d[len(csv.columns)] = 1
-    print(d)
+                print("{0}\n{1} - {2}".format(len(csv.columns), file, csv.columns))
+    total_districts = sum(d)
+    print("Sheets with column length {}".format(d))
+    for key, value in d.items():
+        percentage = (value / total_districts) * 100
+        print("{} - {:.2f}%".format(key, percentage))
+
 
 
 def remove_unnamed(folder, right_size):
