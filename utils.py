@@ -5,6 +5,7 @@ import re
 import time
 import traceback
 
+import numpy as np
 import pandas as pd
 import requests
 import xlrd
@@ -246,7 +247,7 @@ def get_required_columns(folder,
 def remove_empty_records(location):
     if os.path.isfile(location):
         df = pd.read_csv(location)
-        df.replace(r'\s+', df.nan, regex=True, inplace=True)  # Empty Strings are first turned to NaN
+        df.replace(r'\s+', np.NaN, regex=True, inplace=True)  # Empty Strings are first turned to NaN
         new_csv = df.dropna(how='all', inplace=True)
         new_csv.to_csv(location, quoting=csv.QUOTE_ALL, index=False)
     elif os.path.isdir(location):
@@ -254,7 +255,7 @@ def remove_empty_records(location):
             for f in files:
                 file = os.path.join(location, f)
                 df = pd.read_csv(file)
-                df.replace(r'\s+', df.nan, regex=True, inplace=True)  # Empty Strings are first turned to NaN
+                df.replace(r'\s+', np.NaN, regex=True, inplace=True)  # Empty Strings are first turned to NaN
                 new_csv = df.dropna(how='all', inplace=True)
                 new_csv.to_csv(f, quoting=csv.QUOTE_ALL, index=False)
 
