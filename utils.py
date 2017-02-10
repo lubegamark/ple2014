@@ -244,20 +244,44 @@ def get_required_columns(folder,
             remove_empty_records(file, columns)
 
 
-def remove_empty_records(location):
+def strip_records(location):
+    """
+    Strip all string columns
+    """
     if os.path.isfile(location):
         df = pd.read_csv(location)
-        df.replace(r'\s+', np.NaN, regex=True, inplace=True)  # Empty Strings are first turned to NaN
-        new_csv = df.dropna(how='all', inplace=True)
-        new_csv.to_csv(location, quoting=csv.QUOTE_ALL, index=False)
+        # Strip all String Columns
+        df_obj = df.select_dtypes(['object'])
+        df[df_obj.columns] = df_obj.apply(lambda x: x.str.strip())
+        df.to_csv(location, quoting=csv.QUOTE_ALL, index=False)
     elif os.path.isdir(location):
         for path, folders, files in os.walk(location):
             for f in files:
                 file = os.path.join(location, f)
                 df = pd.read_csv(file)
-                df.replace(r'\s+', np.NaN, regex=True, inplace=True)  # Empty Strings are first turned to NaN
-                new_csv = df.dropna(how='all', inplace=True)
-                new_csv.to_csv(f, quoting=csv.QUOTE_ALL, index=False)
+                # Strip all String Columns
+                df_obj = df.select_dtypes(['object'])
+                df[df_obj.columns] = df_obj.apply(lambda x: x.str.strip())
+                df.to_csv(file, quoting=csv.QUOTE_ALL, index=False)
+
+
+def remove_empty_records(location):
+    """
+    Remove all records empty records
+    """
+    if os.path.isfile(location):
+        df = pd.read_csv(location)
+        # Drop all records without data
+        df.dropna(how='all', inplace=True)
+        df.to_csv(location, quoting=csv.QUOTE_ALL, index=False)
+    elif os.path.isdir(location):
+        for path, folders, files in os.walk(location):
+            for f in files:
+                file = os.path.join(location, f)
+                df = pd.read_csv(file)
+                # Drop all records without data
+                df.dropna(how='all', inplace=True)
+                df.to_csv(file, quoting=csv.QUOTE_ALL, index=False)
 
 
 def correct_headers(location):
