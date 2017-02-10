@@ -93,7 +93,7 @@ class ExcelConverter(object):
                 logging.error(str(e) + " " + traceback.format_exc())
             first_sheet = False
         csv_file.close()
-        print("Overall Finished in %s seconds", time.time() - overall_start_time)
+        print("Overall Finished in %s seconds" % (time.time() - overall_start_time))
 
     @staticmethod
     def excel_to_csv_multiple(xls_file, target_folder, wb=None):
@@ -153,7 +153,7 @@ class ExcelConverter(object):
             except Exception as e:
                 logging.error(str(e) + " " + traceback.format_exc())
 
-        print("Overall Finished in %s seconds", time.time() - overall_start_time)
+        print("Overall Finished in %s seconds" % (time.time() - overall_start_time,))
 
 
 class PLEInfo(object):
