@@ -5,7 +5,6 @@ import re
 import time
 import traceback
 
-import numpy as np
 import pandas as pd
 import requests
 import xlrd
@@ -291,18 +290,24 @@ def correct_headers(location):
     """
     if os.path.isfile(location):
         df = pd.read_csv(location)
-        df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT', 'CNDIDATE NUMBER': 'CANDIDATE NUMBER'},
+        # Special Case for Kisoro, it's district column name is kisoro
+        df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT', 'CNDIDATE NUMBER': 'CANDIDATE NUMBER',
+                           'KISORO': 'DISTRICT'},
                   inplace=True)
         df.columns = df.columns.str.strip()
+        df.columns = df.columns.str.upper()
         df.to_csv(location, quoting=csv.QUOTE_ALL, index=False)
     elif os.path.isdir(location):
         for path, folders, files in os.walk(location):
             for f in files:
                 file = os.path.join(location, f)
                 df = pd.read_csv(file)
-                df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT', 'CNDIDATE NUMBER': 'CANDIDATE NUMBER'},
+                # Special Case for Kisoro, it's district column name is kisoro
+                df.rename(columns={'F/M': 'M/F', 'SCIE': 'SCI', 'MATH': 'MAT', 'CNDIDATE NUMBER': 'CANDIDATE NUMBER',
+                                   'KISORO': 'DISTRICT'},
                           inplace=True)
                 df.columns = df.columns.str.strip()
+                df.columns = df.columns.str.upper()
                 df.to_csv(file, quoting=csv.QUOTE_ALL, index=False)
 
 
