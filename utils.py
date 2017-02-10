@@ -33,7 +33,6 @@ class ExcelConverter(object):
         :param target_folder: Folder in which the generated file will be stored
         :param wb: Loaded workbook
         """
-        overall_start_time = time.time()
         print("Start converting")
         if wb:
             print("Workbook provided")
@@ -47,14 +46,13 @@ class ExcelConverter(object):
         csv_file = open(target, 'w+')
         wr = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
         first_sheet = True
+        count = 1
         for sheet_name in wb.sheet_names():
             try:
-                print("Start converting: {}".format(sheet_name))
-                start_time = time.time()
                 sh = wb.sheet_by_name(sheet_name)
 
                 if sheet_name == 'Kyegegwa':  # Kyegegwa has completely different data
-                    print("Moving on, Kyegegwa has different data")
+                    print("\nMoving on, Kyegegwa has different data")
                     continue
 
                 if first_sheet:
@@ -87,13 +85,14 @@ class ExcelConverter(object):
 
                     wr.writerow(new_values)
 
-                print("Finished converting: {} in {} seconds".format(sheet_name, time.time() - start_time))
+                print('.', end='', flush=True)
+                count += 1
 
             except Exception as e:
                 logging.error(str(e) + " " + traceback.format_exc())
             first_sheet = False
         csv_file.close()
-        print("Overall Finished in {} seconds".format(time.time() - overall_start_time))
+        print("Done Converting {} files".format(count))
 
     @staticmethod
     def excel_to_csv_multiple(xls_file, target_folder, wb=None):
@@ -103,19 +102,17 @@ class ExcelConverter(object):
         :param xls_file: Original excel file to be converted
         :param target_folder: Folder in which the generated files will be stored
         """
-        overall_start_time = time.time()
         print("Start converting")
         if not wb:
             wb = xlrd.open_workbook(xls_file)
+        count = 1
         for sheet_name in wb.sheet_names():
             try:
-                print("Start converting: {}".format(sheet_name))
-                start_time = time.time()
                 target = target_folder + sheet_name.upper() + '.csv'
                 sh = wb.sheet_by_name(sheet_name)
 
                 if sheet_name == 'Kyegegwa':  # Kyegegwa has completely different data
-                    print("Moving on, Kyegegwa has different data")
+                    print("\nMoving on, Kyegegwa has different data")
                     continue
 
                 csv_file = open(target, 'w')
@@ -148,12 +145,13 @@ class ExcelConverter(object):
 
                 csv_file.close()
 
-                print("Finished converting: {} in {} seconds".format(sheet_name, time.time() - start_time))
+                print('.', end='', flush=True)
+                count += 1
 
             except Exception as e:
                 logging.error(str(e) + " " + traceback.format_exc())
 
-        print("Overall Finished in {} seconds".format(time.time() - overall_start_time, ))
+        print("\nDone Converting {} files".format(count))
 
 
 class PLEInfo(object):
