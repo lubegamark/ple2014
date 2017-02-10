@@ -49,7 +49,7 @@ class ExcelConverter(object):
         first_sheet = True
         for sheet_name in wb.sheet_names():
             try:
-                print("Start converting: %s" % sheet_name)
+                print("Start converting: {}".format(sheet_name))
                 start_time = time.time()
                 sh = wb.sheet_by_name(sheet_name)
 
@@ -87,13 +87,13 @@ class ExcelConverter(object):
 
                     wr.writerow(new_values)
 
-                print("Finished converting: %s in %s seconds" % (sheet_name, time.time() - start_time))
+                print("Finished converting: {} in {} seconds".format(sheet_name, time.time() - start_time))
 
             except Exception as e:
                 logging.error(str(e) + " " + traceback.format_exc())
             first_sheet = False
         csv_file.close()
-        print("Overall Finished in %s seconds" % (time.time() - overall_start_time))
+        print("Overall Finished in {} seconds".format(time.time() - overall_start_time))
 
     @staticmethod
     def excel_to_csv_multiple(xls_file, target_folder, wb=None):
@@ -109,7 +109,7 @@ class ExcelConverter(object):
             wb = xlrd.open_workbook(xls_file)
         for sheet_name in wb.sheet_names():
             try:
-                print("Start converting: %s" % sheet_name)
+                print("Start converting: {}".format(sheet_name))
                 start_time = time.time()
                 target = target_folder + sheet_name.upper() + '.csv'
                 sh = wb.sheet_by_name(sheet_name)
@@ -148,12 +148,12 @@ class ExcelConverter(object):
 
                 csv_file.close()
 
-                print("Finished converting: %s in %s seconds" % (sheet_name, time.time() - start_time))
+                print("Finished converting: {} in {} seconds".format(sheet_name, time.time() - start_time))
 
             except Exception as e:
                 logging.error(str(e) + " " + traceback.format_exc())
 
-        print("Overall Finished in %s seconds" % (time.time() - overall_start_time,))
+        print("Overall Finished in {} seconds".format(time.time() - overall_start_time,))
 
 
 class PLEInfo(object):
